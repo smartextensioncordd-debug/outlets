@@ -34,7 +34,6 @@
   }
   .screen.active{display:block;}
 
-  /* ---------- AUTH SCREEN ---------- */
   #authScreen{
     background:var(--blue);
     display:none;
@@ -103,7 +102,6 @@
     color:#e64545;font-size:12.5px;text-align:center;margin-top:10px;min-height:16px;
   }
 
-  /* ---------- DEVICE LINK SCREEN ---------- */
   #deviceLinkScreen{
     background:var(--blue);
     display:none;align-items:center;justify-content:center;
@@ -118,7 +116,6 @@
     text-align:center;margin-top:10px;font-size:13px;color:#888;text-decoration:underline;cursor:pointer;
   }
 
-  /* ---------- DASHBOARD ---------- */
   .header{
     background:var(--blue);
     border-radius:0 0 40px 40px;
@@ -199,8 +196,6 @@
   .card.warn{box-shadow:0 0 0 2px #ffb020 inset;}
   .card.danger{box-shadow:0 0 0 2px #ef4444 inset;}
 
-  /* Sparkline strip shown only once a card is expanded - a quiet trace of
-     the last readings, purely decorative context rather than a full chart. */
   .card-wave{
     display:none;margin-top:12px;height:44px;
   }
@@ -222,9 +217,6 @@
   .socket-label{font-size:11.5px;font-weight:700;color:#555;}
   .socket-state{font-size:10.5px;color:#999;}
 
-  /* Per-device stopwatch, now anchored directly under the sockets row for
-     the device currently selected - each device carries its own timer
-     state, this just displays whichever one is on screen. */
   .timer-section{
     margin:14px 22px 0;padding:16px 20px;border-radius:20px;
     background:#fff;box-shadow:0 6px 18px rgba(30,40,90,.06);
@@ -257,7 +249,6 @@
   .action-btn.active-state{box-shadow:0 0 0 3px rgba(255,255,255,.6) inset;}
   .action-btn:disabled{background:#d3d5e0;color:#999;cursor:not-allowed;}
 
-  /* ---------- HISTORY SCREEN ---------- */
   .history-header{
     display:flex;align-items:center;gap:16px;
     padding:22px;
@@ -278,7 +269,6 @@
     text-align:center;color:#9096a8;padding:60px 20px;font-size:14px;
   }
 
-  /* ---------- USER DRAWER ---------- */
   .drawer-overlay{
     display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);
     z-index:50;max-width:480px;margin:0 auto;
@@ -299,8 +289,7 @@
     display:flex;align-items:center;justify-content:center;
   }
   .drawer-header .name{font-size:20px;font-weight:800;letter-spacing:.5px;text-align:center;}
-  /* Editable display-name field: looks like static text until tapped, then
-     becomes an inline input - no separate "edit mode" screen needed. */
+  
   .name-edit-row{display:flex;align-items:center;gap:8px;justify-content:center;}
   .name-input{
     font-size:20px;font-weight:800;letter-spacing:.5px;text-align:center;
@@ -323,8 +312,7 @@
   }
   .drawer-item.selected{box-shadow:0 0 0 2px var(--blue) inset;color:var(--blue);}
   .drawer-item.add-device{color:var(--blue);justify-content:center;}
-  /* Device row in the drawer: the row itself selects the device; the
-     trailing remove icon is its own tap target so the two never conflict. */
+  
   .device-row{
     width:100%;display:flex;align-items:center;background:#fff;
     border-radius:16px;box-shadow:0 4px 16px rgba(30,40,90,.08);
@@ -358,7 +346,6 @@
 </head>
 <body>
 
-<!-- ============ AUTH SCREEN ============ -->
 <div id="authScreen" class="screen active">
   <div class="auth-card">
     <div class="auth-logo">
@@ -396,7 +383,6 @@
   </div>
 </div>
 
-<!-- ============ DEVICE LINK SCREEN ============ -->
 <div id="deviceLinkScreen" class="screen">
   <div class="auth-card">
     <div class="auth-title" style="color:var(--blue)">ADD DEVICE</div>
@@ -408,8 +394,7 @@
     <div class="link-cancel" id="cancelLinkBtn">Cancel</div>
   </div>
 </div>
-
-<!-- ============ DASHBOARD ============ -->
+  
 <div id="dashboardScreen" class="screen">
   <div class="header">
     <div class="header-top">
@@ -486,15 +471,11 @@
     </div>
   </div>
 
-  <!-- Live stopwatch: starts the instant this device's trip signal turns on,
-       stops the instant its relay/off signal turns on again (see JS). -->
   <div class="timer-section" id="timerSection">
     <span class="label">TRIP CUTOFF TIMER</span>
     <span class="val" id="timerDisplay">00:00</span>
   </div>
 
-  <!-- Frozen duration of this device's most recent trip, kept visible even
-       after the live stopwatch above has reset back to 00:00. -->
   <div class="last-trip-section" id="lastTripSection">
     <span class="label">LAST TRIP DURATION</span>
     <span class="val" id="lastTripDisplay">--</span>
@@ -507,7 +488,6 @@
   </div>
 </div>
 
-<!-- ============ HISTORY SCREEN ============ -->
 <div id="historyScreen" class="screen">
   <div class="header">
     <div class="history-header">
@@ -522,7 +502,6 @@
   </div>
 </div>
 
-<!-- ============ USER DRAWER ============ -->
 <div class="drawer-overlay" id="drawerOverlay">
   <div class="drawer">
     <div class="drawer-header">
@@ -543,6 +522,8 @@
       <button class="drawer-item add-device" id="drawerAddDeviceBtn">+ Add Device</button>
       <div class="drawer-section-title">MENU</div>
       <button class="drawer-item" id="drawerHistoryBtn">History</button>
+      <!-- PUSH NOTIFICATIONS ADDITION: independent opt-in button; existing controls unchanged -->
+      <button class="drawer-item" id="enableNotificationsBtn">Enable Phone Notifications</button>
     </div>
     <div class="drawer-footer">
       <button class="signout-btn" id="signOutBtn">SIGN OUT</button>
@@ -553,9 +534,7 @@
 <div class="toast" id="toast"></div>
 
 <script type="module">
-/* =========================================================================
-   FIREBASE CONFIG
-   ========================================================================= */
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
   getAuth, GoogleAuthProvider, signInWithPopup,
@@ -565,6 +544,10 @@ import {
 import {
   getDatabase, ref, onValue, set, get, push, off
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+// PUSH NOTIFICATIONS ADDITION: Firebase Cloud Messaging client SDK
+import {
+  getMessaging, getToken, onMessage, isSupported
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-messaging.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCzWiH6V4FjzmWHItQiOCwUkXHUUh9LS-c",
@@ -579,30 +562,30 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
+const PUSH_VAPID_KEY = "BMH_h8md3eyi1LG7D2x0KH3UdPzM05DwPMfChVVXloENmVCW0yewEOOVPQFWy2GzvmKCCFtjwmVDlGOR7tfKsBQ";
 const googleProvider = new GoogleAuthProvider();
 
-/* =========================================================================
-   NOTE ON NOTIFICATIONS
-   The Notification API used below only fires while this page/tab is open.
-   It is NOT a true push notification that wakes a closed browser/app. For
-   alerts that arrive even when the app is fully closed, this project would
-   need Firebase Cloud Messaging + a service worker + a small cloud function
-   watching the RTDB. Flag this if "closed app" alerts are a hard requirement.
-   ========================================================================= */
 function requestNotifPermission(){
   if ("Notification" in window && Notification.permission === "default") {
     Notification.requestPermission();
   }
 }
-function pushNotification(title, body){
-  if ("Notification" in window && Notification.permission === "granted") {
-    new Notification(title, { body });
+function pushNotification(title, body, tag){
+  try {
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification(title, tag ? { body, tag } : { body });
+      return;
+    }
+  } catch(e) {
+    
   }
+  showToast(`${title} - ${body}`, 6000);
 }
 
-/* =========================================================================
-   SMALL HELPERS
-   ========================================================================= */
+function notifyTrip(code){
+  pushNotification('System Overload', `Device ${code} has tripped. Please unplug immediately.`, `trip-${code}`);
+}
+
 function $(id){ return document.getElementById(id); }
 
 function showScreen(id){
@@ -636,9 +619,6 @@ function fmtTime(totalSeconds){
   return `${m}:${s}`;
 }
 
-/* =========================================================================
-   PASSWORD SHOW / HIDE TOGGLES
-   ========================================================================= */
 const EYE_ICON =
   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9096a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
 const EYE_OFF_ICON =
@@ -655,9 +635,6 @@ document.querySelectorAll('.toggle-eye').forEach(btn => {
   });
 });
 
-/* =========================================================================
-   AUTH SCREEN — Log In vs Create Account
-   ========================================================================= */
 let authMode = 'login';
 
 const emailInput = $('emailInput');
@@ -745,20 +722,44 @@ $('googleSignInBtn').addEventListener('click', async () => {
   }
 });
 
-/* =========================================================================
-   DEVICE LINKING
-   Per the ESP32 firmware: a code is only valid once that unit has actually
-   gone online and written devices/{code}/registered = true to Firebase.
-   ========================================================================= */
 const deviceCodeInput = $('deviceCodeInput');
 const deviceError = $('deviceError');
 let currentUser = null;
-let linkedDevices = [];   // array of device codes linked to this account
+let linkedDevices = [];   
 let selectedDevice = null;
-const deviceStates = {};  // per-device live state, keyed by code (see DeviceState below)
-// True the moment this session has landed on the dashboard at least once -
-// governs what "Cancel" on the Add Device screen falls back to (see below).
+const deviceStates = {};  
 let hasReachedHome = false;
+
+const DEVICE_STALE_MS = 15000;   
+let serverOffsetMs = 0;          
+let clientConnected = true;      
+function serverNow(){ return Date.now() + serverOffsetMs; }
+
+onValue(ref(db, '.info/serverTimeOffset'), (snap) => { serverOffsetMs = snap.val() || 0; });
+onValue(ref(db, '.info/connected'), (snap) => { clientConnected = snap.val() === true; refreshOnlineStates(); });
+
+function deviceFresh(st){
+  const ls = st.status.lastSeen;
+  return !!st.status.online && typeof ls === 'number' && (serverNow() - ls) <= DEVICE_STALE_MS;
+}
+function isDeviceOnline(st){ return clientConnected && deviceFresh(st); }
+
+function refreshOnlineStates(){
+  Object.keys(deviceStates).forEach(code => {
+    const st = deviceStates[code];
+    if (code === selectedDevice) renderStatus(st);
+    // Only judge a device once its first status has arrived, and only while
+    // this browser itself is connected (otherwise "offline" would be our own).
+    if (!st.statusLoaded || !clientConnected) return;
+    if (deviceFresh(st)){
+      st.offlineOffSent = false;
+    } else if (!st.offlineOffSent){
+      st.offlineOffSent = true;
+      set(ref(db, `devices/${code}/control`), { command: 'OFF', timestamp: serverNow() }).catch(() => {});
+      if (code === selectedDevice) showToast(`Device ${code} is offline. An OFF command was stored - press ON again once it is back.`, 4200);
+    }
+  });
+}
 
 $('linkDeviceBtn').addEventListener('click', async () => {
   const code = deviceCodeInput.value.trim();
@@ -775,8 +776,7 @@ $('linkDeviceBtn').addEventListener('click', async () => {
 
   $('linkDeviceBtn').disabled = true;
   try{
-    // Confirm this device actually exists (ESP32 must have gone online at
-    // least once and set devices/{code}/registered = true) before linking.
+    
     const regSnap = await get(ref(db, `devices/${code}/registered`));
     if (!regSnap.exists() || regSnap.val() !== true){
       deviceError.textContent = 'Device code not found. Make sure the unit has been powered on and connected to WiFi at least once.';
@@ -806,11 +806,6 @@ $('skipLinkBtn').addEventListener('click', () => {
   showToast('You can add a device anytime from the menu.');
 });
 
-// Cancel: if this session has already reached the dashboard at least once
-// (skipped before, or opened this screen from the drawer's "+ Add Device"
-// while already having devices), Cancel just returns to that dashboard -
-// nothing is lost. Only a brand-new account that has NEVER reached the
-// dashboard yet gets signed all the way out back to Log In.
 $('cancelLinkBtn').addEventListener('click', async () => {
   deviceCodeInput.value = '';
   deviceError.textContent = '';
@@ -837,9 +832,6 @@ $('drawerAddDeviceBtn').addEventListener('click', () => {
   showScreen('deviceLinkScreen');
 });
 
-/* =========================================================================
-   DEVICE SELECTION / CHIPS (header) + DEVICE ROWS (drawer, with remove)
-   ========================================================================= */
 function renderDeviceChips(){
   const row = $('deviceSwitchRow');
   const drawerList = $('drawerDeviceList');
@@ -887,9 +879,6 @@ function renderDeviceChips(){
   row.appendChild(addChip);
 }
 
-// Minimal long-press helper: fires onTap for a normal click/tap, onHold if
-// the pointer stays down past the threshold (used for the header chip's
-// quick-remove gesture, without needing a separate library).
 function attachTapAndHold(el, onTap, onHold){
   let pressTimer = null;
   let didHold = false;
@@ -942,15 +931,12 @@ async function removeDevice(code){
   if (selectedDevice){
     renderDashboardForSelected();
   } else {
-    // No devices left: stay on the dashboard per spec, just show it empty.
+    
     clearDashboardDisplay();
   }
   showToast(`Device ${code} removed.`);
 }
 
-// Blanks out every dashboard readout when no device is selected at all
-// (e.g. the last linked device was just removed) - stays on Home rather
-// than bouncing back to Add Device.
 function clearDashboardDisplay(){
   $('deviceCodeDisplay').textContent = '--';
   $('statusDisplay').textContent = 'offline';
@@ -974,18 +960,6 @@ function selectDevice(code){
   renderDashboardForSelected();
 }
 
-/* =========================================================================
-   PER-DEVICE LIVE STATE + STOPWATCH
-   Every linked device gets its own listeners and its own stopwatch, so
-   switching between devices (or adding more later) never mixes up timers.
-   Schema written by the ESP32:
-     devices/{code}/readings/{voltage,current,power,energy}
-     devices/{code}/status/{online,relay,tripped,timerSeconds,
-                             lastTripDurationSeconds,sensorHealthy,resetAllowed}
-     devices/{code}/sockets/{socket1,socket2,socket3}
-     devices/{code}/history/{push-id}/{type,message,timestamp}
-     devices/{code}/control/{command,timestamp}   <- app writes this
-   ========================================================================= */
 function newDeviceState(){
   return {
     readings: { voltage: 0, current: 0, power: 0, energy: 0 },
@@ -993,14 +967,12 @@ function newDeviceState(){
               lastTripDurationSeconds: 0, sensorHealthy: true, resetAllowed: false },
     sockets: { socket1: false, socket2: false, socket3: false },
     history: {},
-    // Local stopwatch mirror: ticks every second in the browser between
-    // Firebase pushes, driven by the ESP32's tripped/timerSeconds signal.
     localTimerSeconds: 0,
     localTimerInterval: null,
+    statusLoaded: false,      // first status snapshot received
+    offlineOffSent: false,    // OFF already stored for the current offline period
     warningNotified: false,
     tripNotified: false,
-    // Short rolling buffer of recent readings, purely for the small
-    // sparkline shown when a card is expanded - not persisted, not analytic.
     trail: { voltage: [], current: [], power: [], energy: [] },
   };
 }
@@ -1021,14 +993,19 @@ function startDeviceListeners(code){
 
   onValue(ref(db, `devices/${code}/status`), (snap) => {
     const prevTripped = st.status.tripped;
+    const firstSnapshot = !st.statusLoaded;
     st.status = { ...st.status, ...(snap.val() || {}) };
+    st.statusLoaded = true;
+
+    if (st.status.tripped && !prevTripped && !firstSnapshot){
+      notifyTrip(code);
+    }
 
     // STOPWATCH START: the instant the ESP32's tripped signal turns on.
     if (st.status.tripped && !prevTripped){
       startLocalStopwatch(code);
     }
-    // STOPWATCH STOP: the instant tripped goes back off (relay/off signal
-    // fired, ESP32 already reset timerSeconds to 0 on its side too).
+    
     if (!st.status.tripped && prevTripped){
       stopLocalStopwatch(code);
     }
@@ -1079,21 +1056,18 @@ function stopLocalStopwatch(code){
   if (code === selectedDevice) renderTimer(st);
 }
 
-/* =========================================================================
-   NOTIFICATIONS — 12A warning, 15A trip (per device, edge-triggered)
-   ========================================================================= */
 function checkThresholdNotifications(code, st){
   const c = st.readings.current || 0;
 
   if (c >= 15){
     if (!st.tripNotified){
       st.tripNotified = true;
-      pushNotification('⚠️ System Overload', `Device ${code} has tripped. Please unplug immediately.`);
+      notifyTrip(code);
     }
   } else if (c >= 12){
     if (!st.warningNotified){
       st.warningNotified = true;
-      pushNotification('⚠️ Early Warning', `Device ${code} current reached ${c.toFixed(1)}A.`);
+      pushNotification('Early Warning', `Device ${code} current reached ${c.toFixed(1)}A.`);
     }
   } else {
     st.warningNotified = false;
@@ -1101,9 +1075,6 @@ function checkThresholdNotifications(code, st){
   }
 }
 
-/* =========================================================================
-   RENDERING — dashboard reflects whichever device is currently selected
-   ========================================================================= */
 const TRAIL_MAX_POINTS = 30;
 function pushTrail(st, key, value){
   const arr = st.trail[key];
@@ -1111,9 +1082,6 @@ function pushTrail(st, key, value){
   if (arr.length > TRAIL_MAX_POINTS) arr.shift();
 }
 
-// Renders a small sparkline for one metric's trail into its wave container.
-// Purely a quiet shape trace, not a labeled chart - decorative context that
-// the numbers above already state precisely.
 function renderWave(containerId, points, color){
   const el = $(containerId);
   if (!el) return;
@@ -1197,22 +1165,23 @@ function renderReadings(st){
 
 function renderStatus(st){
   const statusEl = $('statusDisplay');
-  statusEl.textContent = st.status.online ? 'online' : 'offline';
-  statusEl.className = st.status.online ? 'status-online' : 'status-offline';
+  const online = isDeviceOnline(st);
+  statusEl.textContent = online ? 'online' : 'offline';
+  statusEl.className = online ? 'status-online' : 'status-offline';
 
-  $('offlineBanner').classList.toggle('show', !st.status.online);
+  $('offlineBanner').textContent = clientConnected
+    ? '⚠ Device is offline. Showing last known readings - live data and remote control are paused.'
+    : '⚠ You are not connected to the internet. Controls are paused.';
+  $('offlineBanner').classList.toggle('show', !online);
   $('tripBanner').classList.toggle('show', !!st.status.tripped);
   $('warnBanner').classList.toggle('show', !st.status.tripped && (st.readings.current ?? 0) >= 12);
 
-  $('onBtn').classList.toggle('active-state', !!st.status.relay);
-  $('offBtn').classList.toggle('active-state', !st.status.relay && !st.status.tripped);
+  $('onBtn').classList.toggle('active-state', online && !!st.status.relay);
+  $('offBtn').classList.toggle('active-state', !(online && st.status.relay) && !st.status.tripped);
 
-  // Buttons only make sense while the device is reachable.
-  const controlsEnabled = st.status.online;
+  const controlsEnabled = online;
   $('onBtn').disabled = !controlsEnabled || st.status.tripped;
   $('offBtn').disabled = !controlsEnabled || st.status.tripped;
-  // RESET only enabled when the ESP32 itself says resetAllowed = true
-  // (i.e. at least one socket has been unplugged since the trip).
   $('resetBtn').disabled = !controlsEnabled || !st.status.resetAllowed;
 
   const lastTripSection = $('lastTripSection');
@@ -1261,9 +1230,6 @@ function renderHistory(st){
   }).join('');
 }
 
-/* =========================================================================
-   AUTH STATE — decide whether to show Device Link or the Dashboard
-   ========================================================================= */
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   stopAllDeviceListeners();
@@ -1298,9 +1264,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-/* =========================================================================
-   DRAWER
-   ========================================================================= */
 const drawerOverlay = $('drawerOverlay');
 function openDrawer(){ drawerOverlay.classList.add('active'); }
 function closeDrawer(){ drawerOverlay.classList.remove('active'); }
@@ -1313,11 +1276,6 @@ $('signOutBtn').addEventListener('click', async () => {
   try{ await signOut(auth); } catch(e){ /* ignore */ }
 });
 
-/* =========================================================================
-   EDITABLE DISPLAY NAME
-   Tapping the pencil swaps the static name for an inline input pre-filled
-   with the current name; saving just updates Firebase Auth's profile.
-   ========================================================================= */
 const drawerNameEl = $('drawerUserName');
 const drawerNameInput = $('drawerNameInput');
 const editNameBtn = $('editNameBtn');
@@ -1359,24 +1317,17 @@ async function saveDisplayName(){
   }
 }
 
-/* =========================================================================
-   HISTORY SCREEN
-   ========================================================================= */
 $('openHistoryBtn').addEventListener('click', () => showScreen('historyScreen'));
 $('drawerHistoryBtn').addEventListener('click', () => { closeDrawer(); showScreen('historyScreen'); });
 $('backFromHistoryBtn').addEventListener('click', () => showScreen('dashboardScreen'));
 
-/* =========================================================================
-   ON / OFF / RESET
-   Writes to devices/{code}/control exactly as handleRemoteCommands() on the
-   ESP32 expects: a {command, timestamp} object, where timestamp is a real
-   Unix-ms value the firmware compares against its own NTP-synced clock.
-   ========================================================================= */
 function sendCommand(command){
   if (!selectedDevice){ showToast('Link a device first.'); return; }
+  const stSel = deviceStates[selectedDevice];
+  if (!stSel || !isDeviceOnline(stSel)){ showToast('Device is offline. Control is paused.'); return; }
   set(ref(db, `devices/${selectedDevice}/control`), {
     command,
-    timestamp: Date.now()
+    timestamp: serverNow()
   });
 }
 
@@ -1384,9 +1335,78 @@ $('onBtn').addEventListener('click', () => sendCommand('ON'));
 $('offBtn').addEventListener('click', () => sendCommand('OFF'));
 $('resetBtn').addEventListener('click', () => sendCommand('RESET'));
 
+let pushMessagingInstance = null;
+let foregroundMessageUnsubscribe = null;
+
+async function hashPushToken(token){
+  const bytes = new TextEncoder().encode(token);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function setupPushNotifications(){
+  if (!currentUser){
+    showToast('Please sign in first to enable phone notifications.');
+    return;
+  }
+  if (!('Notification' in window) || !('serviceWorker' in navigator) || !window.isSecureContext){
+    showToast('This browser does not support Web Push notifications here.');
+    return;
+  }
+  if (!PUSH_VAPID_KEY || PUSH_VAPID_KEY.includes('PASTE_YOUR_')){
+    showToast('Setup needed: add the Firebase Web Push VAPID public key in index.html.');
+    return;
+  }
+  try{
+    if (!(await isSupported())){
+      showToast('Firebase Push Messaging is not supported by this browser.');
+      return;
+    }
+    const permission = Notification.permission === 'granted'
+      ? 'granted'
+      : await Notification.requestPermission();
+    if (permission !== 'granted'){
+      showToast('Phone notifications are blocked. Allow them in browser/site settings.');
+      return;
+    }
+
+    // The file is scoped to this GitHub Pages app folder; existing UI/routes are untouched.
+    const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
+    await navigator.serviceWorker.ready;
+    pushMessagingInstance = getMessaging(app);
+    const token = await getToken(pushMessagingInstance, {
+      vapidKey: PUSH_VAPID_KEY,
+      serviceWorkerRegistration: registration
+    });
+    if (!token) throw new Error('Firebase did not return a push token.');
+
+    const tokenKey = await hashPushToken(token);
+    await set(ref(db, `users/${currentUser.uid}/pushTokens/${tokenKey}`), {
+      token,
+      updatedAt: serverNow()
+    });
+
+    if (!foregroundMessageUnsubscribe){
+      foregroundMessageUnsubscribe = onMessage(pushMessagingInstance, payload => {
+        const data = payload.data || {};
+        const title = data.title || payload.notification?.title || 'Smart Extension Cord';
+        const body = data.body || payload.notification?.body || 'A new device alert was received.';
+        showToast(`${title} - ${body}`, 6000);
+      });
+    }
+    showToast('Phone push notifications enabled for this account.');
+  } catch(err){
+    console.error('Push notification setup failed:', err);
+    showToast('Could not enable push notifications. Check VAPID key, Firebase rules, and browser settings.');
+  }
+}
+
+$('enableNotificationsBtn').addEventListener('click', setupPushNotifications);
+
 /* Initial UI state */
 setAuthMode('login');
 setupExpandableCards();
+setInterval(refreshOnlineStates, 2000);   
 </script>
 </body>
 </html>
